@@ -1,0 +1,48 @@
+name: Read QuaX issues
+
+# Started by the triage routine, which cannot read the QuaX issues through its GitHub proxy.
+# Publishes them as the issues artifact of the run, which the routine then downloads.
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: read-issues
+  cancel-in-progress: false
+
+jobs:
+  read:
+    name: Export the QuaX issues
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Export the issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+          QUAX: Teskann/QuaX
+          OUT: ${{ runner.temp }}/data
+        run: |
+          set -euo pipefail
+          mkdir "$OUT"
+
+          gh issue list --repo "$QUAX" --state open --limit 500 \
+            --json number,title,author,labels,body,comments,createdAt,updatedAt \
+            > "$OUT/open-issues.json"
+          gh issue list --repo "$QUAX" --state all --limit 2000 \
+            --json number,title,state,labels \
+            > "$OUT/all-issues.json"
+          gh label list --repo "$QUAX" --limit 200 --json name,description \
+            > "$OUT/labels.json"
+
+      - name: Publish them
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: issues
+          path: ${{ runner.temp }}/data
+          if-no-files-found: error
+          retention-days: 1

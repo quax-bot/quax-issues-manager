@@ -1,0 +1,55 @@
+name: Post answers on QuaX
+
+# Started by the triage routine with its answers (answers.schema.json). Posts them on QuaX as
+# quax-bot, whose quax-triage blocks QuaX then applies.
+
+on:
+  workflow_dispatch:
+    inputs:
+      answers:
+        description: JSON matching answers.schema.json
+        required: true
+
+permissions: {}
+
+concurrency:
+  group: post-answers
+  cancel-in-progress: false
+
+jobs:
+  post:
+    name: Comment on the QuaX issues
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # QUAX_BOT_TOKEN is a secret of this environment only, which accepts the main branch only. The
+    # routine can push other branches and start this workflow from them, with a version of this file
+    # it changed: such a run never gets the token.
+    environment: quax
+    permissions:
+      contents: read
+
+    steps:
+      - name: Clone the scripts
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts
+
+      - name: Clone the QuaX validator and triage schema
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          repository: Teskann/QuaX
+          path: quax
+          persist-credentials: false
+          sparse-checkout: .github/triage
+
+      # The answers go through the environment, never inlined into the script
+      - name: Post the answers
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          ANSWERS: ${{ inputs.answers }}
+        with:
+          github-token: ${{ secrets.QUAX_BOT_TOKEN }}
+          script: |
+            const post = require('./scripts/post.js')
+            await post({ github, core, json: process.env.ANSWERS })
