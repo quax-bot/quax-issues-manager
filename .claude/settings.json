@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh workflow run read_issues.yml:*)",
+      "Bash(gh workflow run post_answers.yml:*)"
+    ]
+  }
+}
