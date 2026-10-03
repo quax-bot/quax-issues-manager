@@ -11,18 +11,6 @@ can write to, so it works here and these workflows reach QuaX for it:
 
 The routine prompt is in `ROUTINE.md`.
 
-## Setup
-
-1. Create a classic personal access token on `quax-bot` with the `public_repo` scope only, and an
-   expiration date.
-2. In this repository's settings, create the environment `quax`. Under deployment branches, allow
-   `main` only. Add the token as the environment secret `QUAX_BOT_TOKEN`. Do not add it as a
-   repository secret: the routine can start workflows from other branches, and only the environment
-   keeps the token away from them.
-3. Protect `main` so that only pull requests can change it.
-4. Create a cloud routine on this repository with the content of `ROUTINE.md` as its prompt, no
-   connector, and a daily schedule.
-
 ## Tests
 
 With QuaX cloned in `quax/`:

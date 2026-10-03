@@ -1,8 +1,5 @@
 name: Read QuaX issues
 
-# Started by the triage routine, which cannot read the QuaX issues through its GitHub proxy.
-# Publishes them as the issues artifact of the run, which the routine then downloads.
-
 on:
   workflow_dispatch:
 
