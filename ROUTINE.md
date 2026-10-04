@@ -76,6 +76,11 @@ Your comments are the ones whose author is `quax-bot`.
 Skip the issues that are already addressed and where nothing happened since your last comment.
 Work on all the others, oldest activity first, and read each one fully before acting.
 
+Also review the issues that already have labels and whose last comment is not yours: they may be
+wrongly labelled (wrong type, wrong area, a stale `needs info`, a missing `enough context` or
+`easy`). Fix the labels when they are wrong. Reviewing is not a reason to comment: reply only when
+what you have to say is worth it, see "When to comment".
+
 ## Answers
 
 Write one answer per issue that needs action to `/tmp/triage/answers.json`, as defined by
@@ -99,7 +104,8 @@ Write one answer per issue that needs action to `/tmp/triage/answers.json`, as d
   - `new_labels`: up to 2 labels to create, each with a lowercase `name`, a one-line
     `description` without `<` or `>`, and a 6-digit hex `color` without `#`, also listed in
     `add_labels`;
-  - `remove_needs_info`: `true` to remove the `needs info` label, the only one you can remove;
+  - `remove_labels`: up to 5 labels to remove from the issue; a label the issue does not carry is
+    ignored;
   - `close`: `"completed"` or `"not_planned"`.
 - When the triage is the only thing to say, the comment states what it does, so that it does not
   look empty: `Labelled as bug and video.`
@@ -125,10 +131,16 @@ Reuse the existing labels first. Add every label that fits:
   `downloads`, `translation`, `ui`…)
 - a state, when it applies: `needs info` (you asked the author something), `possibly fixed` (you
   think a released version fixed it), `api change` (X changed its API on its side).
+- `enough context`: the issue holds what a developer needs to investigate it, with nothing left to
+  ask the author;
+- `easy`: a quick win, when you read the code and the change is small and clear (a few lines in one
+  place). Never on a hunch.
 
 Declare a new label in `new_labels` only when it describes a recurring theme that no existing label
 covers, not for a single issue. Keep names short, lowercase and consistent with the existing ones.
-Send `remove_needs_info` once the author has given what was asked.
+Send `remove_labels: ["needs info"]` once the author has given what was asked. Remove another label
+only when it became false (e.g. `possibly fixed` once the author says the problem persists), and
+see "Comment style" on not changing labels back and forth.
 
 ## When to comment
 
@@ -142,9 +154,14 @@ Do not comment when:
 
 Otherwise, comment when one of these helps the issue move forward:
 
-- **Missing information**: ask precisely for what is needed to reproduce, such as the QuaX version,
-  Android version and device, steps, the expected and actual behaviour, a screenshot, a screen
-  recording, or the error text from the in-app error card, which can prefill a bug report.
+- **Missing information**: ask only for what changes the investigation, the one piece without which
+  you cannot tell what is wrong (the QuaX version to compare with the code, steps, a screen
+  recording, or the error text from the in-app error card, which can prefill a bug report). Never
+  ask for information just to have more of it, and never for what the issue already says or what
+  would not change your conclusion.
+- **Information provided**: when the author gave what you asked, answer with what it changes for
+  this bug and the result of your investigation (the cause, the fix, the duplicate, or that it is
+  still unclear and why), not a thank-you. Send `remove_labels: ["needs info"]` with it.
 - **Already fixed**: don't trust commit messages and release notes alone, read the code. Find where
   the reported behaviour lives in `quax/lib/` and check whether the current code still has the
   problem. Run git in the QuaX clone (`git -C quax ...`).
@@ -158,8 +175,8 @@ Otherwise, comment when one of these helps the issue move forward:
 - **Duplicate**: link the other issue, found among every QuaX issue:
   `jq '.[] | select(.title | test("<keyword>"; "i"))' /tmp/data/all-issues.json`.
 - **Investigation or fix**: when you can locate the likely cause in the code, point to the files and
-  lines as paths of QuaX (`lib/...`) with a short explanation and a possible fix. State it as a
-  hypothesis unless you are sure.
+  lines as paths of QuaX (`lib/...`) with a short explanation and a possible fix. Only when you
+  are sure, see "Comment style"; otherwise ask `@teskann`.
 - **Clarification**: restate a confusing report in a few clear sentences so the maintainer gets it
   at a glance.
 - **Translation**: when the issue or a comment is not in English, give an English translation in a
@@ -194,7 +211,29 @@ When in doubt, do not close: ask `@teskann` instead.
 - Write like a chat message to a colleague: a few lines at most, straight to the point. No greeting,
   no "thanks for the report", no filler, no apologies, no restating the issue, no headings. Plain
   sentences, and a short list only when you ask for several things.
-- When pointing to code, give the `file:line` and one sentence, not an essay.
+- Say only what moves the issue forward. If a sentence can be removed without losing information,
+  remove it. When you have nothing precise to say, say nothing.
+- Never guess a diagnosis. Say what the cause is only when the code backs it with a `file:line`
+  you read; otherwise ask the author for the missing information, ask `@teskann`, or stay silent.
+  No "it might be", "probably", "it seems", no theory about X's API.
+- Put technical details (code paths, commits, tags, reasoning) in a `<details>` block after the
+  short message, so that the author sees the conclusion first and the maintainer can open the rest:
+
+  ```
+  Fixed in v4.15.0. Can you update and confirm?
+
+  <details><summary>Details</summary>
+
+  `lib/<file>.dart:<line>` no longer <does X> since a490593, first shipped in v4.15.0.
+
+  </details>
+  ```
+
+  Skip the block when there is no detail worth reading.
+- Do not keep changing labels. Label an issue once, with the labels that fit now, and leave them
+  alone afterwards. Touch them again only for a real change of state: `needs info` when you ask,
+  removed when the author answers; `possibly fixed` when you point to a released fix. Never add,
+  remove and re-add, and never relabel an issue just to adjust its area.
 - Never promise a fix, a release date, or that the maintainer will do something.
 
 Good: `Fixed in v4.15.0 (by a490593). Can you update and confirm?`
