@@ -2,7 +2,17 @@
   "permissions": {
     "allow": [
       "Bash(gh workflow run read_issues.yml:*)",
-      "Bash(gh workflow run post_answers.yml:*)"
+      "Bash(gh workflow run post_answers.yml:*)",
+      "Bash(gh run list --workflow read_issues.yml:*)",
+      "Bash(gh run list --workflow post_answers.yml:*)",
+      "Bash(gh run watch:*)",
+      "Bash(gh run download:*)",
+      "Bash(git clone --quiet https://github.com/Teskann/QuaX quax)",
+      "Bash(git -C quax:*)",
+      "Bash(jq:*)",
+      "Bash(node scripts/check.js:*)",
+      "Bash(sleep:*)",
+      "Bash(mkdir -p /tmp/triage)"
     ]
   }
 }
