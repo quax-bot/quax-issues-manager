@@ -178,12 +178,11 @@ Otherwise, comment when one of these helps the issue move forward:
   `git diff <tag> -- <file>`. `changelog.md`, `release-notes.md` and the tags
   (`git tag --sort=-v:refname`) help you find candidates. Only claim it is fixed when the code
   backs it. Then try to prove it in the app, see "Proving a fix":
-  - proven: say which released version fixed it, link the commit, show the GIF and close the issue;
-  - not proven (no way to reproduce it, see "Proving a fix"): say which version fixed it, link the
-    commit, ask the author to update and confirm, and add `possibly fixed`;
+  - proven: say which released version fixed it, or that it ships in the next release when the fix
+    is only on `master`, link the commit, show the GIF and close the issue;
+  - not proven (no way to reproduce it, see "Proving a fix"): say which version fixed it (or the
+    next release), link the commit, ask the author to update and confirm, and add `possibly fixed`;
   - the app still shows the bug: don't claim anything; say what you saw and ask `@teskann`.
-
-  If the fix is on `master` but not released yet, say so and don't close.
 - **Duplicate**: link the other issue, found among every QuaX issue:
   `jq '.[] | select(.title | test("<keyword>"; "i"))' /tmp/data/all-issues.json`. Keep the oldest
   report open, even when the fix or the discussion happened on a newer one.
@@ -208,8 +207,8 @@ likely cause.
 
 ## Proving a fix
 
-When the code backs a fix in a released version, reproduce the issue in an emulator on that version
-and record the result. Two workflows do it for you: `quax-bot/quax-x-recorder` records what X sends
+When the code backs a fix, released or only on `master`, reproduce the issue in an emulator on a
+version that has it and record the result. Two workflows do it for you: `quax-bot/quax-x-recorder` records what X sends
 for a page, and `quax-bot/quax-emulated` runs QuaX against these recordings with a Maestro flow and
 films it. Read both READMEs first.
 
@@ -233,8 +232,8 @@ films it. Read both READMEs first.
    (`assertVisible` of what should now show, `assertNotVisible` of the error), following "Writing
    flows" in `quax-emulated`'s README and the flows of `quax/.maestro/`. Keep it short: it is the
    proof.
-4. **Run it** on the first released tag that ships the fix, or on `master` when that tag cannot run
-   on the emulator (it needs `tool/mock_x/emulator_qa.dart`, first in v4.18.0). Pass the capture as
+4. **Run it** on the first released tag that ships the fix, or on `master` when the fix is not
+   released yet or that tag cannot run on the emulator (it needs `tool/mock_x/emulator_qa.dart`, first in v4.18.0). Pass the capture as
    `patch`, if you made one:
 
    ```bash
@@ -282,7 +281,8 @@ films it. Read both READMEs first.
    </details>
    ```
 
-   with `"close": "completed"`. Say they can comment if it still happens on their side.
+   with `"close": "completed"`. For a fix only on `master`, start with `Fixed on master (by <sha>),
+   coming in the next release.` instead. Say they can comment if it still happens on their side.
 
 Skip the proof, and ask the author to confirm instead, when the bug depends on something the mock
 cannot replay: being logged in, the author's device or storage, a video codec, a rate limit, or a
@@ -292,8 +292,9 @@ private account the throwaway X account cannot see.
 
 Close an issue only in these cases, never on a hunch:
 
-- **Fixed and proven**: the code backs the fix (see "Already fixed") and a flow on the released
-  version shows it, see "Proving a fix". Send `"close": "completed"` with the GIF.
+- **Fixed and proven**: the code backs the fix (see "Already fixed") and a flow on a version that
+  has it shows it, see "Proving a fix", even when the fix is only on `master` yet. Send
+  `"close": "completed"` with the GIF.
 - **Fixed and confirmed**: the code backs the fix (see "Already fixed"), and the author or `teskann`
   confirmed in a comment that it works now. Send `"close": "completed"`.
 - **No answer to a request for information**: you or `teskann` asked the author for information, the
