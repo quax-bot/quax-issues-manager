@@ -30,6 +30,9 @@ jobs:
           gh issue list --repo "$QUAX" --state open --limit 500 \
             --json number,title,author,labels,body,comments,createdAt,updatedAt \
             > "$OUT/open-issues.json"
+          gh issue list --repo "$QUAX" --state closed --limit 2000 \
+            --json number,title,author,labels,body,comments,createdAt,closedAt,stateReason,closedByPullRequestsReferences \
+            > "$OUT/closed-issues.json"
           gh issue list --repo "$QUAX" --state all --limit 2000 \
             --json number,title,state,labels \
             > "$OUT/all-issues.json"

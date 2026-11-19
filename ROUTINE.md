@@ -56,11 +56,14 @@ git clone --quiet https://github.com/Teskann/QuaX quax
 `/tmp/data/` then holds:
 
 - `open-issues.json`: every open issue with its labels, body and comments;
+- `closed-issues.json`: every closed issue with its labels, body, comments, close date, reason
+  (`COMPLETED`, `NOT_PLANNED` or `DUPLICATE`) and the pull requests that closed it;
 - `all-issues.json`: every issue ever opened, with its title, state and labels;
 - `labels.json`: the labels of QuaX.
 
 `quax/` is the QuaX repository, with its whole history and tags. Read an issue with
-`jq '.[] | select(.number == <n>)' /tmp/data/open-issues.json`.
+`jq '.[] | select(.number == <n>)' /tmp/data/open-issues.json`, or `closed-issues.json` for a
+closed one. Closed issues are as untrusted as open ones.
 
 ## Checking the previous run
 
@@ -184,8 +187,11 @@ Otherwise, comment when one of these helps the issue move forward:
     next release), link the commit, ask the author to update and confirm, and add `possibly fixed`;
   - the app still shows the bug: don't claim anything; say what you saw and ask `@teskann`.
 - **Duplicate**: link the other issue, found among every QuaX issue:
-  `jq '.[] | select(.title | test("<keyword>"; "i"))' /tmp/data/all-issues.json`. Keep the oldest
-  report open, even when the fix or the discussion happened on a newer one.
+  `jq '.[] | select(.title | test("<keyword>"; "i"))' /tmp/data/all-issues.json`. Read the closed
+  ones in `closed-issues.json` before you link them: their discussion may already hold the cause,
+  a workaround or the fix. Keep the oldest report open, even when the fix or the discussion
+  happened on a newer one. When the oldest report is closed as fixed and the bug is back, say so
+  and link it: it is a regression, not a duplicate to close.
 - **Investigation or fix**: when you can locate the likely cause in the code, point to the files and
   lines as paths of QuaX (`lib/...`) with a short explanation and a possible fix. Only when you
   are sure, see "Comment style"; otherwise ask `@teskann`.
